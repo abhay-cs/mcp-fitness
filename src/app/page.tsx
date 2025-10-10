@@ -1,103 +1,191 @@
-import Image from "next/image";
+'use client'
 
+import { useState, useEffect } from "react"
+import { getAllMeals, getAllWorkouts } from "./lib/db"
 export default function Home() {
-  return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+	//state for workouts and meals
+	const [meals, setMeals] = useState<any[]>([]);
+	const [workouts, setWorkouts] = useState<any[]>([]);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
-  );
+	//state for form inputs
+	const [workoutInput, setWorkoutInput] = useState('');
+	const [mealInput, setMealInput] = useState('');
+
+	useEffect(() => {
+		//load data: Fetch workouts and meals
+		const fetchWorkouts = async () => {
+			try {
+				const response = await fetch('/api/workouts');
+
+				if (!response.ok) {
+					throw new Error(`HTTP error! status: ${response.status}`)
+				}
+				const result = await response.json();
+				setWorkouts(result.workouts);
+			} catch (error) {
+
+			};
+		};
+
+		const fetchMeals = async () => {
+			try {
+				const response = await fetch('/api/meals');
+
+				if (!response.ok) {
+					throw new Error(`HTTP error! status: ${response.status}`)
+				}
+				const result = await response.json();
+				console.log('Meals result:', result);
+				setMeals(result.meals);
+			} catch (error) {
+
+			};
+		};
+
+		fetchWorkouts();
+		fetchMeals();
+
+	}, []);
+
+	// Handle workout submission
+	const handleAddWorkout = async (e: React.FormEvent) => {
+		e.preventDefault();
+		// TODO: POST to /api/workouts
+		if (!workoutInput.trim()) return;
+		try {
+			const response = await fetch('/api/workouts', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({ description: workoutInput })
+			});
+			if (!response.ok) {
+				throw new Error('failed to add workout');
+			}
+			setWorkoutInput('')
+			// TODO: Refresh workout list
+			const workoutRefresh = await fetch('/api/workouts')
+			const result = await workoutRefresh.json();
+			setWorkouts(result.workouts)
+		} catch (error) {
+			console.error("Error adding workout:", error);
+
+		}
+
+	};
+
+	// Handle meal submission
+	const handleAddMeal = async (e: React.FormEvent) => {
+		e.preventDefault();
+		if (!mealInput.trim()) return;
+		try {
+			const response = await fetch('/api/meals', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({ description: mealInput })
+			});
+			if (!response.ok) {
+				throw new Error('failed to add meal');
+			}
+
+			console.log('Meal added, refreshing list...'); // ADD THIS
+
+			setMealInput('');
+
+			const mealRefresh = await fetch('/api/meals');
+			const result = await mealRefresh.json();
+
+			console.log('Fetched meals:', result.meals); // ADD THIS
+
+			setMeals(result.meals);
+
+			console.log('State updated'); // ADD THIS
+		} catch (error) {
+			console.error("Error adding meal:", error);
+		}
+	};
+
+
+	return (
+		<div className="min-h-screen p-8">
+			<h1 className="text-4xl font-bold mb-8">MCP Fitness</h1>
+
+			{/* Workout Form */}
+			<div className="mb-8">
+				<h2 className="text-2xl font-bold mb-4">Log Workout</h2>
+				<form onSubmit={handleAddWorkout}>
+					<div>
+						<input
+							type="text"
+							value={workoutInput}
+							onChange={(e) => setWorkoutInput(e.target.value)}
+							placeholder="Enter workout log"
+							className="border p-2 mr-2"
+						/>
+						<button type="submit" className="bg-blue-500 text-white px-4 py-2">
+							Submit
+						</button>
+					</div>
+				</form>
+			</div>
+
+			{/* Meal Form */}
+			<div className="mb-8">
+				<h2 className="text-2xl font-bold mb-4">Log Meal</h2>
+				<form onSubmit={handleAddMeal}>
+					<div>
+						<input
+							type="text"
+							value={mealInput}
+							onChange={(e) => setMealInput(e.target.value)}
+							placeholder="Enter meal log"
+							className="border p-2 mr-2"
+						/>
+						<button type="submit" className="bg-blue-500 text-white px-4 py-2">
+							Submit
+						</button>
+					</div>
+				</form>
+			</div>
+
+			{/* Display Lists */}
+			<div className="grid grid-cols-2 gap-8">
+				<div>
+					<h2 className="text-2xl font-bold mb-4">Recent Workouts</h2>
+
+					{workouts.length === 0 ? (
+						<p>No workouts yet</p>
+					) : (
+						<ul>
+							{workouts.map((workout: any) => (
+								<li key={workout.id} className="mb-2 p-2 border">
+									<p className="font-bold">{workout.date}</p>
+									<p>{workout.description}</p>
+								</li>
+							))}
+						</ul>
+					)}
+				</div>
+				<div>
+					<h2 className="text-2xl font-bold mb-4">Recent Meals</h2>
+					{/* TODO: Map over meals */}
+					{meals?.length === 0 ? (
+						<p>No meals yet</p>
+					) : (
+						<ul>
+							{meals.map((meal: any) => (
+								<li key={meal.id} className="mb-2 p-2 border">
+									<p className="font-bold">{meal.date}</p>
+									<p>{meal.description}</p>
+								</li>
+							))}
+						</ul>
+					)}
+				</div>
+			</div>
+		</div>
+	);
 }
