@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from "react"
-import { getAllMeals, getAllWorkouts } from "./lib/db"
+// Removed db imports since using API calls directly
 export default function Home() {
 	//state for workouts and meals
 	const [meals, setMeals] = useState<any[]>([]);
