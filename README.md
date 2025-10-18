@@ -254,8 +254,8 @@ This project is licensed under the MIT License.
 ## 👨‍💻 Author
 
 **Your Name**
-- GitHub: [@yourusername](https://github.com/abhay-cs)
-- LinkedIn: [Your Name](https://linkedin.com/in/abhaycs)
+- GitHub: [@abhay-cs](https://github.com/abhay-cs)
+- LinkedIn: [Abhay Sharma](https://linkedin.com/in/abhaycs)
 
 ## 🙏 Acknowledgments
 
@@ -270,4 +270,4 @@ This project is licensed under the MIT License.
 
 This project uses MCP (Model Context Protocol), an open standard for AI-to-application integration. As more AI tools adopt MCP, Vitals will work with them automatically - no code changes needed.
 
-Built by Abhay Sharma.
+Built by [Abhay Sharma](https://abhaycs.com).
